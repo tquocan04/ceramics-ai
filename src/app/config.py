@@ -76,6 +76,21 @@ class Settings(BaseSettings):
     def _strip_trailing_slash(cls, v: str) -> str:
         return v.rstrip("/")
 
+    @field_validator("ai_api_key", "internal_api_key", mode="before")
+    @classmethod
+    def _blank_secret_is_absent(cls, v: object) -> object:
+        """Treat `KEY=` in `.env` as unset.
+
+        Without this, an empty line parses to `SecretStr('')` rather than
+        `None`, and every `is None` check downstream reads it as "configured".
+        `.env.example` tells you to leave `INTERNAL_API_KEY` empty for local
+        development -- doing so would otherwise enforce auth against an empty
+        key no client can send, locking you out of your own service.
+        """
+        if isinstance(v, str) and not v.strip():
+            return None
+        return v
+
     @model_validator(mode="after")
     def _check_coherent(self) -> Settings:
         if self.ai_provider == "openai-compatible" and self.ai_api_key is None:

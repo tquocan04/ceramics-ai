@@ -175,3 +175,27 @@ def test_vietnamese_logging_survives_a_cp1252_console(
         )
     finally:
         sys.stdout = original
+
+
+# ── Blank secrets in .env ────────────────────────────────────────────────────
+
+
+def test_blank_internal_key_means_unset() -> None:
+    """`.env.example` says to leave INTERNAL_API_KEY empty for local dev.
+
+    An empty value must therefore disable the check. Parsing it as
+    `SecretStr('')` would enforce auth against a key no client can send.
+    """
+    settings = Settings(ai_provider="fake", internal_api_key="", _env_file=None)
+    assert settings.internal_api_key is None
+
+
+def test_blank_api_key_is_rejected_like_a_missing_one() -> None:
+    """`AI_API_KEY=` must fail at startup, not at the provider call."""
+    with pytest.raises(ValueError, match="AI_API_KEY"):
+        Settings(ai_provider="openai-compatible", ai_api_key="   ", _env_file=None)
+
+
+def test_whitespace_only_internal_key_means_unset() -> None:
+    settings = Settings(ai_provider="fake", internal_api_key="   ", _env_file=None)
+    assert settings.internal_api_key is None
