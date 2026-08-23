@@ -1,0 +1,720 @@
+{
+  "source": "seeded",
+  "note": "Synthetic model output for offline replay. Regenerate genuine recordings with `python -m tests.regression.record_live`.",
+  "recordings": {
+    "vi-order-001-full": {
+      "product_name": "Đĩa gốm",
+      "quantity": 350,
+      "height_cm": 4,
+      "decoration_pattern": "Chim hạc",
+      "glaze_type": "Men nâu",
+      "firing_temperature_c": 1300,
+      "deadline_days": 7,
+      "evidence": [
+        {
+          "field": "product_name",
+          "text": "đĩa gốm"
+        },
+        {
+          "field": "quantity",
+          "text": "350"
+        },
+        {
+          "field": "height_cm",
+          "text": "cao 4cm"
+        },
+        {
+          "field": "decoration_pattern",
+          "text": "họa tiết chim hạc"
+        },
+        {
+          "field": "glaze_type",
+          "text": "men nâu"
+        },
+        {
+          "field": "firing_temperature_c",
+          "text": "nung 1300°C"
+        },
+        {
+          "field": "deadline_days",
+          "text": "trong 7 ngày"
+        }
+      ],
+      "ai_priority": "URGENT"
+    },
+    "vi-order-002-example-vase": {
+      "product_name": "Bình gốm",
+      "quantity": 200,
+      "height_cm": 35,
+      "decoration_pattern": "Hoa sen",
+      "glaze_type": "Men lam",
+      "firing_temperature_c": 1280,
+      "deadline_days": 10,
+      "evidence": [
+        {
+          "field": "product_name",
+          "text": "Bình gốm"
+        },
+        {
+          "field": "quantity",
+          "text": "200"
+        },
+        {
+          "field": "height_cm",
+          "text": "cao 35cm"
+        },
+        {
+          "field": "decoration_pattern",
+          "text": "họa tiết sen"
+        },
+        {
+          "field": "glaze_type",
+          "text": "men lam"
+        },
+        {
+          "field": "firing_temperature_c",
+          "text": "1280°C"
+        },
+        {
+          "field": "deadline_days",
+          "text": "trong 10 ngày"
+        }
+      ],
+      "ai_priority": "HIGH"
+    },
+    "vi-order-003-example-bowl": {
+      "product_name": "Chén gốm",
+      "quantity": 60,
+      "height_cm": 8,
+      "decoration_pattern": "Tre",
+      "glaze_type": "Men trắng",
+      "firing_temperature_c": 1250,
+      "deadline_days": 21,
+      "evidence": [
+        {
+          "field": "product_name",
+          "text": "chén gốm"
+        },
+        {
+          "field": "quantity",
+          "text": "60"
+        },
+        {
+          "field": "height_cm",
+          "text": "cao 8cm"
+        },
+        {
+          "field": "decoration_pattern",
+          "text": "họa tiết tre"
+        },
+        {
+          "field": "glaze_type",
+          "text": "men trắng"
+        },
+        {
+          "field": "firing_temperature_c",
+          "text": "nung 1250 độ C"
+        },
+        {
+          "field": "deadline_days",
+          "text": "trong 21 ngày"
+        }
+      ],
+      "ai_priority": "NORMAL"
+    },
+    "vi-order-004-example-jar": {
+      "product_name": "Lọ gốm",
+      "quantity": 30,
+      "height_cm": 22,
+      "decoration_pattern": "Mây",
+      "glaze_type": "Men rạn",
+      "firing_temperature_c": 1220,
+      "deadline_days": 18,
+      "evidence": [
+        {
+          "field": "product_name",
+          "text": "lọ gốm"
+        },
+        {
+          "field": "quantity",
+          "text": "30"
+        },
+        {
+          "field": "height_cm",
+          "text": "cao 22cm"
+        },
+        {
+          "field": "decoration_pattern",
+          "text": "họa tiết mây"
+        },
+        {
+          "field": "glaze_type",
+          "text": "men rạn"
+        },
+        {
+          "field": "firing_temperature_c",
+          "text": "nung 1220 độ"
+        },
+        {
+          "field": "deadline_days",
+          "text": "18 ngày"
+        }
+      ],
+      "ai_priority": "LOW"
+    },
+    "vi-order-005-spelled-quantity": {
+      "quantity": null,
+      "height_cm": 4,
+      "glaze_type": "Men nâu",
+      "firing_temperature_c": 1300,
+      "deadline_days": 7,
+      "evidence": [
+        {
+          "field": "quantity",
+          "text": "ba trăm năm mươi"
+        },
+        {
+          "field": "height_cm",
+          "text": "4"
+        },
+        {
+          "field": "glaze_type",
+          "text": "Men nâu"
+        },
+        {
+          "field": "firing_temperature_c",
+          "text": "1300"
+        },
+        {
+          "field": "deadline_days",
+          "text": "7"
+        }
+      ],
+      "ai_priority": null
+    },
+    "vi-order-006-spelled-quantity-small": {
+      "quantity": 25,
+      "height_cm": 30,
+      "glaze_type": "Men lam",
+      "firing_temperature_c": 1250,
+      "deadline_days": 20,
+      "evidence": [
+        {
+          "field": "quantity",
+          "text": "25"
+        },
+        {
+          "field": "height_cm",
+          "text": "30"
+        },
+        {
+          "field": "glaze_type",
+          "text": "Men lam"
+        },
+        {
+          "field": "firing_temperature_c",
+          "text": "1250"
+        },
+        {
+          "field": "deadline_days",
+          "text": "20"
+        }
+      ],
+      "ai_priority": null
+    },
+    "vi-order-007-approximate-quantity": {
+      "quantity": 350,
+      "firing_temperature_c": 1300,
+      "deadline_days": 7,
+      "evidence": [
+        {
+          "field": "quantity",
+          "text": "350"
+        },
+        {
+          "field": "firing_temperature_c",
+          "text": "1300"
+        },
+        {
+          "field": "deadline_days",
+          "text": "7"
+        }
+      ],
+      "ai_priority": null
+    },
+    "vi-order-008-height-mm": {
+      "quantity": 100,
+      "height_cm": 40,
+      "firing_temperature_c": 1250,
+      "deadline_days": 14,
+      "evidence": [
+        {
+          "field": "quantity",
+          "text": "100"
+        },
+        {
+          "field": "height_cm",
+          "text": "cao 40mm"
+        },
+        {
+          "field": "firing_temperature_c",
+          "text": "1250"
+        },
+        {
+          "field": "deadline_days",
+          "text": "14"
+        }
+      ],
+      "ai_priority": null
+    },
+    "vi-order-009-height-cm-spaced": {
+      "quantity": 100,
+      "height_cm": 4,
+      "firing_temperature_c": 1250,
+      "deadline_days": 14,
+      "evidence": [
+        {
+          "field": "quantity",
+          "text": "100"
+        },
+        {
+          "field": "height_cm",
+          "text": "4"
+        },
+        {
+          "field": "firing_temperature_c",
+          "text": "1250"
+        },
+        {
+          "field": "deadline_days",
+          "text": "14"
+        }
+      ],
+      "ai_priority": null
+    },
+    "vi-order-010-height-metres": {
+      "quantity": 5,
+      "height_cm": 1.2,
+      "firing_temperature_c": 1280,
+      "deadline_days": 45,
+      "evidence": [
+        {
+          "field": "quantity",
+          "text": "5"
+        },
+        {
+          "field": "height_cm",
+          "text": "cao 1.2m"
+        },
+        {
+          "field": "firing_temperature_c",
+          "text": "1280"
+        },
+        {
+          "field": "deadline_days",
+          "text": "45"
+        }
+      ],
+      "ai_priority": null
+    },
+    "vi-order-011-temp-do": {
+      "quantity": 200,
+      "firing_temperature_c": 1280,
+      "deadline_days": 12,
+      "evidence": [
+        {
+          "field": "quantity",
+          "text": "200"
+        },
+        {
+          "field": "firing_temperature_c",
+          "text": "1280"
+        },
+        {
+          "field": "deadline_days",
+          "text": "12"
+        }
+      ],
+      "ai_priority": null
+    },
+    "vi-order-012-temp-thousands-separator": {
+      "quantity": 200,
+      "firing_temperature_c": 1,
+      "deadline_days": 12,
+      "evidence": [
+        {
+          "field": "quantity",
+          "text": "200"
+        },
+        {
+          "field": "firing_temperature_c",
+          "text": "nung khoảng 1.280°C"
+        },
+        {
+          "field": "deadline_days",
+          "text": "12"
+        }
+      ],
+      "ai_priority": null
+    },
+    "vi-order-013-temp-degree-c-spaced": {
+      "quantity": 150,
+      "firing_temperature_c": 1250,
+      "deadline_days": 15,
+      "evidence": [
+        {
+          "field": "quantity",
+          "text": "150"
+        },
+        {
+          "field": "deadline_days",
+          "text": "15"
+        }
+      ],
+      "ai_priority": null
+    },
+    "vi-order-014-deadline-one-week": {
+      "quantity": 80,
+      "firing_temperature_c": 1260,
+      "deadline_days": 1,
+      "evidence": [
+        {
+          "field": "quantity",
+          "text": "80"
+        },
+        {
+          "field": "firing_temperature_c",
+          "text": "1260"
+        },
+        {
+          "field": "deadline_days",
+          "text": "trong một tuần"
+        }
+      ],
+      "ai_priority": null
+    },
+    "vi-order-015-deadline-two-weeks": {
+      "quantity": 80,
+      "firing_temperature_c": 1260,
+      "deadline_days": 2,
+      "evidence": [
+        {
+          "field": "quantity",
+          "text": "80"
+        },
+        {
+          "field": "firing_temperature_c",
+          "text": "1260"
+        },
+        {
+          "field": "deadline_days",
+          "text": "trong 2 tuần"
+        }
+      ],
+      "ai_priority": null
+    },
+    "vi-order-016-deadline-half-month": {
+      "quantity": 80,
+      "firing_temperature_c": 1260,
+      "deadline_days": 1,
+      "evidence": [
+        {
+          "field": "quantity",
+          "text": "80"
+        },
+        {
+          "field": "firing_temperature_c",
+          "text": "1260"
+        },
+        {
+          "field": "deadline_days",
+          "text": "nửa tháng"
+        }
+      ],
+      "ai_priority": null
+    },
+    "vi-order-017-deadline-one-month": {
+      "quantity": 80,
+      "firing_temperature_c": 1260,
+      "deadline_days": 1,
+      "evidence": [
+        {
+          "field": "quantity",
+          "text": "80"
+        },
+        {
+          "field": "firing_temperature_c",
+          "text": "1260"
+        },
+        {
+          "field": "deadline_days",
+          "text": "trong 1 tháng"
+        }
+      ],
+      "ai_priority": null
+    },
+    "vi-order-018-missing-temperature": {
+      "product_name": "Bình gốm",
+      "quantity": 200,
+      "decoration_pattern": "Hoa sen",
+      "glaze_type": "Men lam",
+      "evidence": [
+        {
+          "field": "product_name",
+          "text": "bình gốm"
+        },
+        {
+          "field": "quantity",
+          "text": "200"
+        },
+        {
+          "field": "decoration_pattern",
+          "text": "họa tiết sen"
+        },
+        {
+          "field": "glaze_type",
+          "text": "men lam"
+        }
+      ],
+      "ai_priority": null
+    },
+    "vi-order-019-missing-dimensions": {
+      "quantity": 120,
+      "firing_temperature_c": 1240,
+      "deadline_days": 20,
+      "evidence": [
+        {
+          "field": "quantity",
+          "text": "120"
+        },
+        {
+          "field": "firing_temperature_c",
+          "text": "1240"
+        },
+        {
+          "field": "deadline_days",
+          "text": "20"
+        }
+      ],
+      "ai_priority": null
+    },
+    "vi-order-020-only-quantity-and-product": {
+      "product_name": "Lọ gốm",
+      "quantity": 50,
+      "evidence": [
+        {
+          "field": "product_name",
+          "text": "lọ gốm"
+        },
+        {
+          "field": "quantity",
+          "text": "50"
+        }
+      ],
+      "ai_priority": null
+    },
+    "vi-order-021-ambiguous-everything": {
+      "evidence": [],
+      "ai_priority": null
+    },
+    "vi-order-022-ambiguous-deadline-only": {
+      "quantity": 200,
+      "firing_temperature_c": 1280,
+      "evidence": [
+        {
+          "field": "quantity",
+          "text": "200"
+        },
+        {
+          "field": "firing_temperature_c",
+          "text": "1280"
+        }
+      ],
+      "ai_priority": null
+    },
+    "vi-order-023-diameter": {
+      "quantity": 300,
+      "width_cm": 15,
+      "glaze_type": "Men trắng",
+      "deadline_days": 10,
+      "evidence": [
+        {
+          "field": "quantity",
+          "text": "300"
+        },
+        {
+          "field": "width_cm",
+          "text": "đường kính 15cm"
+        },
+        {
+          "field": "glaze_type",
+          "text": "men trắng"
+        },
+        {
+          "field": "deadline_days",
+          "text": "10"
+        }
+      ],
+      "ai_priority": "URGENT"
+    },
+    "vi-order-024-height-and-width": {
+      "quantity": 40,
+      "height_cm": 25,
+      "width_cm": 12,
+      "firing_temperature_c": 1230,
+      "deadline_days": 30,
+      "evidence": [
+        {
+          "field": "quantity",
+          "text": "40"
+        },
+        {
+          "field": "height_cm",
+          "text": "cao 25cm"
+        },
+        {
+          "field": "width_cm",
+          "text": "rộng 12cm"
+        },
+        {
+          "field": "firing_temperature_c",
+          "text": "1230"
+        },
+        {
+          "field": "deadline_days",
+          "text": "30"
+        }
+      ],
+      "ai_priority": null
+    },
+    "vi-order-025-mixed-vi-en": {
+      "quantity": 250,
+      "height_cm": 6,
+      "firing_temperature_c": 1290,
+      "deadline_days": 9,
+      "evidence": [
+        {
+          "field": "quantity",
+          "text": "250"
+        },
+        {
+          "field": "height_cm",
+          "text": "6"
+        },
+        {
+          "field": "firing_temperature_c",
+          "text": "1290"
+        },
+        {
+          "field": "deadline_days",
+          "text": "9"
+        }
+      ],
+      "ai_priority": null
+    },
+    "vi-order-026-unrelated-notes": {
+      "quantity": 180,
+      "height_cm": 28,
+      "decoration_pattern": "Hoa sen",
+      "glaze_type": "Men lam",
+      "firing_temperature_c": 1270,
+      "deadline_days": 16,
+      "evidence": [
+        {
+          "field": "quantity",
+          "text": "180"
+        },
+        {
+          "field": "height_cm",
+          "text": "cao 28cm"
+        },
+        {
+          "field": "decoration_pattern",
+          "text": "họa tiết sen"
+        },
+        {
+          "field": "glaze_type",
+          "text": "men lam"
+        },
+        {
+          "field": "firing_temperature_c",
+          "text": "1270"
+        },
+        {
+          "field": "deadline_days",
+          "text": "trong 16 ngày"
+        }
+      ],
+      "ai_priority": null
+    },
+    "vi-order-027-implausible-temperature": {
+      "quantity": 100,
+      "firing_temperature_c": 3000,
+      "deadline_days": 20,
+      "evidence": [
+        {
+          "field": "quantity",
+          "text": "100"
+        },
+        {
+          "field": "firing_temperature_c",
+          "text": "3000"
+        },
+        {
+          "field": "deadline_days",
+          "text": "20"
+        }
+      ],
+      "ai_priority": null
+    },
+    "vi-order-028-large-urgent": {
+      "quantity": 500,
+      "firing_temperature_c": 1300,
+      "deadline_days": 4,
+      "evidence": [
+        {
+          "field": "quantity",
+          "text": "500"
+        },
+        {
+          "field": "firing_temperature_c",
+          "text": "1300"
+        },
+        {
+          "field": "deadline_days",
+          "text": "4"
+        }
+      ],
+      "ai_priority": "URGENT"
+    },
+    "vi-order-029-prompt-injection": {
+      "evidence": [],
+      "ai_priority": null
+    },
+    "vi-order-030-single-item": {
+      "quantity": 1,
+      "height_cm": 40,
+      "firing_temperature_c": 1280,
+      "deadline_days": 25,
+      "evidence": [
+        {
+          "field": "quantity",
+          "text": "1"
+        },
+        {
+          "field": "height_cm",
+          "text": "cao 40cm"
+        },
+        {
+          "field": "firing_temperature_c",
+          "text": "1280"
+        },
+        {
+          "field": "deadline_days",
+          "text": "25"
+        }
+      ],
+      "ai_priority": "LOW"
+    }
+  }
+}
