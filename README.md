@@ -122,6 +122,23 @@ Everything is read from `.env` via `pydantic-settings`, validated at startup —
 | OpenAI | `https://api.openai.com/v1` | `gpt-4o-mini` |
 | Ollama (local) | `http://localhost:11434/v1` | `qwen2.5:14b` |
 
+### Output mode
+
+`AI_OUTPUT_MODE` is `auto | native | tool | prompted`. It matters more than it
+looks: **a model that advertises `tools` in its capability list does not
+necessarily do tool calling well.** Measured on the same request, same prompt,
+same schema:
+
+| configuration | success | median |
+|---|---|---|
+| `stealth/ox-alpha` — tool calling | 0/5 | — |
+| `stealth/ox-alpha` — prompted | **10/10** | **4.0s** |
+| `openai/gpt-4o-mini` — tool calling | 5/5 | 2.1s |
+
+The service recovers from this on its own — a model that returns no tool call
+is demoted `tool → prompted` once and the choice is remembered for the process
+— but setting `AI_OUTPUT_MODE=prompted` explicitly saves the first request.
+
 ### Timeouts and retries
 
 Three numbers, because there are three units of work: `AI_TIMEOUT_SECONDS` (30) bounds one HTTP round-trip, `AI_ATTEMPT_SECONDS` (35) bounds one agent run — which may contain `1 + AI_OUTPUT_RETRIES` round-trips — and `AI_REQUEST_BUDGET_SECONDS` (45) bounds the whole request. Startup warns if the budget cannot fit the retries you asked for.
@@ -154,6 +171,11 @@ Every failure returns the same envelope the frontend already parses:
 | `AI_PROVIDER_ERROR`, `AI_INVALID_JSON` | 502 | |
 | `AI_PROVIDER_UNAVAILABLE` | 503 | |
 | `AI_TIMEOUT` | 504 | |
+
+**Reading a failure:** 502 is *the model or the request*; 503 is *the provider
+unreachable*. So a `502 Bad Gateway` from this service is not an outage to wait
+out — check `error.code`. `AI_INVALID_JSON` means the model produced something
+unusable, and the usual cure is `AI_OUTPUT_MODE=prompted` or a different model.
 
 The first four names are shared verbatim with `frontend/lib/domain/errors.ts`, so the backend needs no translation table.
 

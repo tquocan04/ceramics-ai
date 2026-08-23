@@ -116,7 +116,13 @@ def map_provider_exception(exc: BaseException, *, model: str) -> ProviderError:
                     ]
                 },
             )
-        return InvalidModelOutput(str(exc), raw=getattr(exc, "body", None))
+        # No ValidationError in the chain means nothing was even parsed: the
+        # model emitted neither a tool call nor text, and pydantic-ai gave up
+        # asking. That is a different failure from malformed content, and the
+        # caller can act on it by changing output mode.
+        return InvalidModelOutput(
+            str(exc), raw=getattr(exc, "body", None), no_output=cause is None
+        )
 
     if isinstance(exc, ModelAPIError):
         return ProviderUnavailable(str(exc))

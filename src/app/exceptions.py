@@ -121,7 +121,19 @@ class InvalidModelOutput(ProviderError):
     inferences producing byte-identical broken JSON.
     """
 
-    def __init__(self, message: str | None = None, *, raw: str | None = None) -> None:
+    def __init__(
+        self,
+        message: str | None = None,
+        *,
+        raw: str | None = None,
+        no_output: bool = False,
+    ) -> None:
+        #: True when the model produced nothing usable at all -- no tool call
+        #: and no text -- as opposed to producing malformed content. The two
+        #: want different remedies: an empty response often means the model
+        #: cannot drive the output mode we asked for, while malformed content
+        #: means it tried and got the shape wrong.
+        self.no_output = no_output
         super().__init__(
             ErrorCode.AI_INVALID_JSON,
             message,

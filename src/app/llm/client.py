@@ -33,6 +33,7 @@ from app.common.retry import build_retrying
 from app.config import Settings
 from app.exceptions import (
     BudgetExhausted,
+    InvalidModelOutput,
     ProviderError,
     ProviderTimeout,
     SchemaValidationFailed,
@@ -278,6 +279,27 @@ class PydanticAIProvider:
                 self._reasoning = "minimal"
                 return await self._run_once(
                     instructions, user_input, output_type, self._output_mode, run_budget
+                )
+
+            if (
+                self._settings.ai_output_mode_fallback
+                and self._output_mode == "tool"
+                and isinstance(exc, InvalidModelOutput)
+                and exc.no_output
+            ):
+                # The model emitted no tool call at all. Some models advertise
+                # `tools` and still cannot drive one: measured on
+                # stealth/ox-alpha, tool calling scored 0/5 on a request that
+                # prompted output answered 5/5. Asking for JSON in the prompt
+                # is the remaining way to get the same data out of it.
+                log.warning(
+                    "llm.output_mode_demoted",
+                    model=self.model,
+                    **{"from": "tool", "to": "prompted"},
+                )
+                self._output_mode = "prompted"
+                return await self._run_once(
+                    instructions, user_input, output_type, "prompted", run_budget
                 )
 
             rejected = _NATIVE_REJECTED.search(message)
