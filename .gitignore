@@ -1,0 +1,244 @@
+# ============================================================
+# Python
+# ============================================================
+
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+pip-wheel-metadata/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python tooling
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pytype/
+.pyre/
+.coverage
+.coverage.*
+htmlcov/
+
+# ============================================================
+# Environment / Secrets
+# ============================================================
+
+.env
+.env.*
+!.env.example
+
+*.pem
+*.key
+*.crt
+
+secrets/
+credentials/
+credentials.json
+
+# API/service credentials
+service-account.json
+google-credentials.json
+
+# ============================================================
+# IDE / Editor
+# ============================================================
+
+.idea/
+.vscode/
+
+*.swp
+*.swo
+*~
+
+# ============================================================
+# OS
+# ============================================================
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ============================================================
+# Logs / Runtime
+# ============================================================
+
+*.log
+logs/
+
+tmp/
+temp/
+
+*.pid
+*.pid.lock
+
+# ============================================================
+# Jupyter / Notebook
+# ============================================================
+
+.ipynb_checkpoints/
+
+# Optional:
+# Ignore notebooks generated only for experiments.
+# notebooks/experiments/
+
+# ============================================================
+# AI / ML Models
+# ============================================================
+
+models/
+checkpoints/
+weights/
+
+*.pt
+*.pth
+*.ckpt
+*.bin
+*.safetensors
+*.onnx
+*.h5
+*.keras
+*.tflite
+*.gguf
+*.ggml
+
+# Hugging Face cache
+.cache/huggingface/
+huggingface/
+
+# ============================================================
+# AI / ML Datasets
+# ============================================================
+
+data/raw/
+data/processed/
+data/cache/
+data/tmp/
+
+datasets/
+
+# Common large data formats
+*.parquet
+*.arrow
+*.feather
+
+# Uncomment if these files should never be committed.
+# *.csv
+# *.jsonl
+
+# Keep dataset structure/documentation
+!data/.gitkeep
+!data/README.md
+
+# ============================================================
+# Vector Databases / Embeddings
+# ============================================================
+
+vector_store/
+vectorstore/
+vector_db/
+
+chroma/
+chroma_db/
+chroma_data/
+
+faiss/
+faiss_index/
+
+*.faiss
+*.index
+
+# ============================================================
+# LLM / RAG Runtime Data
+# ============================================================
+
+embeddings/
+cache/
+llm_cache/
+
+generated/
+outputs/
+artifacts/
+
+# Parsed/uploaded documents
+uploads/
+documents/processed/
+
+# ============================================================
+# AI Agents
+# ============================================================
+
+agent_memory/
+memory/
+sessions/
+
+# Local agent state
+.agent/
+.agent_state/
+
+# ============================================================
+# LangChain / LangGraph
+# ============================================================
+
+.langchain/
+.langgraph/
+
+# Local LangGraph state/database
+*.sqlite
+*.sqlite3
+*.db
+
+# ============================================================
+# ML Experiment Tracking
+# ============================================================
+
+mlruns/
+wandb/
+lightning_logs/
+runs/
+
+# TensorBoard
+events.out.tfevents.*
+
+# ============================================================
+# Local Evaluation Results
+# ============================================================
+
+eval/results/
+evaluation/results/
+benchmark/results/
+
+# ============================================================
+# Coverage / Reports
+# ============================================================
+
+coverage.xml
+pytest.xml
+report.xml
+
+reports/generated/
+
+# ============================================================
+# Docker / Local Development
+# ============================================================
+
+docker-compose.override.yml
+
+# ============================================================
+# Misc
+# ============================================================
+
+*.bak
+*.tmp
+*.cache
