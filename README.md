@@ -50,9 +50,9 @@ curl.exe -X POST http://127.0.0.1:8100/v1/orders/extract `
 ```jsonc
 {
   "schema_version": "1.0",
-  "prompt_version": "order-extraction-v1",
+  "prompt_version": "order-extraction-v2",
   "provider": "openai-compatible",
-  "model": "openai/gpt-4o-mini",
+  "model": "stealth/ox-alpha",
 
   "extracted": {
     "product_name": "Đĩa gốm", "quantity": 350,
@@ -67,11 +67,12 @@ curl.exe -X POST http://127.0.0.1:8100/v1/orders/extract `
   "provenance": { "quantity": [5, 8], "height_cm": [42, 49] },
 
   "evidence": { "quantity": "350", "height_cm": "cao 4cm" },
-  "ai_priority": "URGENT",
-  "ai_priority_reason": "Số lượng lớn với thời hạn ngắn.",
   "missing_fields": ["width_cm"],
   "warnings": [],
-  "metadata": { "latency_ms": 1840, "attempts": 1, "usage": { "input_tokens": 812 } }
+  "metadata": {
+    "latency_ms": 6552, "attempts": 1,
+    "usage": { "input_tokens": 1402, "output_tokens": 157, "reasoning_tokens": 0 }
+  }
 }
 ```
 
@@ -90,7 +91,7 @@ description
     ↓  resolve spans   quotes → character offsets
     ↓  validate        impossible values dropped, odd ones flagged
     ↓  estimate        clay/glaze/firing from formulas, not the model
-    ↓  prioritise      business rule; the model's opinion kept alongside
+    ↓  prioritise      business rule, not the model's opinion
 OrderAnalysisResponse
 ```
 
