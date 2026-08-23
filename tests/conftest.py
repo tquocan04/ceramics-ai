@@ -8,6 +8,7 @@ resolves `get_provider` through a dependency override pointing at
 from __future__ import annotations
 
 import json
+import os
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
@@ -30,6 +31,22 @@ SAMPLE_DESCRIPTION = (
 )
 
 
+@pytest.fixture(autouse=True)
+def _hermetic_settings(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Cut every `Settings()` in the suite off from the developer's `.env`.
+
+    Without this, tests silently inherit whatever is on the machine. A local
+    `AI_TIMEOUT_SECONDS=90` made twenty-eight tests fail with a config error
+    that had nothing to do with the code under test -- and, worse, a `.env`
+    that happened to match the defaults would let a real misconfiguration pass
+    unnoticed. Tests assert on values they state.
+    """
+    monkeypatch.setitem(Settings.model_config, "env_file", None)
+    for name in list(os.environ):
+        if name.startswith(("AI_", "INTERNAL_API_KEY", "LOG_", "CORS_")):
+            monkeypatch.delenv(name, raising=False)
+
+
 @pytest.fixture
 def settings() -> Settings:
     """Settings that need no `.env` and no API key."""
@@ -46,17 +63,15 @@ def sample_extraction() -> LLMOrderExtraction:
         glaze_type="Men nâu",
         firing_temperature_c=1300,
         deadline_days=7,
-        evidence=[
-            {"field": "quantity", "text": "350"},
-            {"field": "product_name", "text": "đĩa gốm"},
-            {"field": "glaze_type", "text": "men nâu"},
-            {"field": "decoration_pattern", "text": "họa tiết chim hạc"},
-            {"field": "height_cm", "text": "cao 4cm"},
-            {"field": "firing_temperature_c", "text": "nung 1300°C"},
-            {"field": "deadline_days", "text": "trong 7 ngày"},
-        ],
-        ai_priority="URGENT",
-        ai_priority_reason="Số lượng lớn với thời hạn ngắn.",
+        evidence={
+            "quantity": "350",
+            "product_name": "đĩa gốm",
+            "glaze_type": "men nâu",
+            "decoration_pattern": "họa tiết chim hạc",
+            "height_cm": "cao 4cm",
+            "firing_temperature_c": "nung 1300°C",
+            "deadline_days": "trong 7 ngày",
+        },
     )
 
 

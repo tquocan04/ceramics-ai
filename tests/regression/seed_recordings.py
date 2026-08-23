@@ -117,17 +117,13 @@ def build() -> dict[str, Any]:
             values[name] = raw_value
             hints[name] = snippet
 
-        evidence = []
+        evidence = {}
         for name, value in values.items():
             snippet = _evidence_for(name, value, case.description, hints.get(name))
             if snippet:
-                evidence.append({"field": name, "text": snippet})
+                evidence[name] = snippet
 
-        recordings[case.id] = {
-            **values,
-            "evidence": evidence,
-            "ai_priority": case.expected_priority,
-        }
+        recordings[case.id] = {**values, "evidence": evidence}
 
     return {
         "source": "seeded",

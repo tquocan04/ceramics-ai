@@ -13,7 +13,10 @@ UI's shape wins because it is already load-bearing.
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict, Field
+import json
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.common.enums import Priority
 from app.common.responses import SCHEMA_VERSION, AnalysisWarning, RequestMetadata
@@ -21,8 +24,22 @@ from app.common.responses import SCHEMA_VERSION, AnalysisWarning, RequestMetadat
 # ── What the model is asked to produce ───────────────────────────────────────
 
 
-class FieldEvidence(BaseModel):
-    """The verbatim source snippet backing one extracted field (§11).
+class Evidence(BaseModel):
+    """Verbatim source snippet per extracted field (§11).
+
+    One fixed key per field. Deliberately NOT `list[FieldEvidence]`, and
+    emphatically not `dict[str, str]`:
+
+    * A free-form `field: str` lets the model write "height" for `height_cm`.
+      `_collect_evidence` then drops it and the review screen loses a
+      highlight, with no error raised anywhere.
+    * `dict[str, str]` is unusable under strict structured output. Verified
+      against the installed transformer: `OpenAIJsonSchemaTransformer(...,
+      strict=True)` rewrites an open object to `{"properties": {},
+      "required": [], "additionalProperties": false}` -- an object that can
+      carry no keys at all. Constrained decoding would then make evidence
+      physically impossible to emit, and `provenance` would come back empty on
+      every request with nothing to explain why.
 
     The model quotes text; it is never asked for character offsets. Counting
     characters is exactly what language models are bad at, so offsets are
@@ -31,52 +48,86 @@ class FieldEvidence(BaseModel):
 
     model_config = ConfigDict(extra="ignore")
 
-    field: str = Field(description="Name of the extracted field this supports.")
-    text: str = Field(description="Exact substring copied from the description.")
+    # Plain `str` with an empty default, not `str | None`. Strict mode marks
+    # every property required regardless, so nullability buys nothing at the
+    # wire and costs an `anyOf[string, null]` per field. Measured on the eight
+    # fields: 665 chars of schema versus 889, for identical output. An empty
+    # string means "no evidence" and is filtered by `_collect_evidence`.
+    product_name: str = ""
+    quantity: str = ""
+    height_cm: str = ""
+    width_cm: str = ""
+    decoration_pattern: str = ""
+    glaze_type: str = ""
+    firing_temperature_c: str = ""
+    deadline_days: str = ""
+
+    @model_validator(mode="before")
+    @classmethod
+    def _accept_model_variants(cls, value: Any) -> Any:
+        """Normalise the shapes models actually emit for a nested object.
+
+        Two are absorbed here rather than failed:
+
+        * **A JSON-encoded string.** Observed in production: the model returns
+          `"evidence": "{\\"quantity\\": \\"350\\", ...}"` -- the content
+          entirely correct, merely serialised one level too deep -- and then
+          repeats it byte-for-byte when shown the validation error. Rejecting
+          a correct extraction over a quoting habit would be perverse.
+        * **The v1 `[{"field": ..., "text": ...}]` list.** Keeps recorded
+          replay fixtures valid across the schema change.
+
+        Anything still unparseable falls through to normal validation, so a
+        genuinely malformed payload is still reported.
+        """
+        if isinstance(value, str):
+            text = value.strip()
+            if not text:
+                return {}
+            try:
+                value = json.loads(text)
+            except json.JSONDecodeError:
+                return value
+
+        if isinstance(value, list):
+            return {
+                item["field"]: item["text"]
+                for item in value
+                if isinstance(item, dict) and "field" in item and "text" in item
+            }
+        return value
 
 
 class LLMOrderExtraction(BaseModel):
     """The only object the LLM produces.
 
-    Note what is absent: no estimates, no character offsets, and the priority is
-    advisory. Those are computed deterministically downstream (§4, §13, §14).
+    Note what is absent: no estimates, no character offsets, no priority, no
+    free-text notes. Estimates and priority are computed deterministically
+    downstream (§4, §13, §14); `notes` was generated on every call and read by
+    nothing.
+
+    Field descriptions are omitted except where the name genuinely
+    under-specifies the field. `quantity: "Number of units ordered."` restates
+    its own name at ~8 tokens, on every request, forever. Semantics belong in
+    the prompt; the schema carries shape.
     """
 
     model_config = ConfigDict(extra="ignore")
 
-    product_name: str | None = Field(
-        default=None, description="Product type, e.g. 'Bình gốm', 'Đĩa gốm'."
-    )
-    quantity: int | None = Field(default=None, description="Number of units ordered.")
-    height_cm: float | None = Field(default=None, description="Height in centimetres.")
+    product_name: str | None = None
+    quantity: int | None = None
+    height_cm: float | None = None
     width_cm: float | None = Field(
-        default=None, description="Width or diameter in centimetres."
+        default=None, description="Width or diameter (đường kính), in cm."
     )
-    decoration_pattern: str | None = Field(
-        default=None, description="Decorative motif, e.g. 'Hoa sen', 'Chim hạc'."
-    )
-    glaze_type: str | None = Field(
-        default=None, description="Glaze, e.g. 'Men lam', 'Men nâu'."
-    )
-    firing_temperature_c: int | None = Field(
-        default=None, description="Peak firing temperature in Celsius."
-    )
-    deadline_days: int | None = Field(
-        default=None, description="Days from now until delivery is required."
-    )
-    notes: str | None = Field(
-        default=None, description="Any remaining requirement not covered above."
-    )
+    decoration_pattern: str | None = None
+    glaze_type: str | None = None
+    firing_temperature_c: int | None = None
+    deadline_days: int | None = None
 
-    evidence: list[FieldEvidence] = Field(
-        default_factory=list,
-        description="One entry per non-null field, quoting the source text.",
-    )
-    ai_priority: Priority | None = Field(
-        default=None, description="Suggested priority. Advisory only."
-    )
-    ai_priority_reason: str | None = Field(
-        default=None, description="One short business sentence. No reasoning trace."
+    evidence: Evidence = Field(
+        default_factory=Evidence,
+        description="Exact source substring for each field you filled.",
     )
 
 
@@ -130,9 +181,6 @@ class OrderAnalysisResponse(BaseModel):
 
     #: Debug aid: the model's quoted snippet per field, pre-resolution.
     evidence: dict[str, str] = Field(default_factory=dict)
-    #: What the model would have chosen, kept beside the deterministic value.
-    ai_priority: Priority | None = None
-    ai_priority_reason: str | None = None
 
     missing_fields: list[str] = Field(default_factory=list)
     warnings: list[AnalysisWarning] = Field(default_factory=list)

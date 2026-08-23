@@ -45,14 +45,48 @@ class Settings(BaseSettings):
     ai_api_key: SecretStr | None = None
     ai_base_url: str = "https://openrouter.ai/api/v1"
     ai_temperature: float = Field(default=0.0, ge=0.0, le=2.0)
-    ai_max_tokens: int = Field(default=2048, gt=0)
+    #: The slim schema's largest legal output is ~250 tokens. A tight ceiling
+    #: bounds worst-case decode time and turns a runaway reasoning trace into a
+    #: fast, diagnosable error instead of a timeout.
+    ai_max_tokens: int = Field(default=768, gt=0)
 
-    #: Per-attempt provider timeout. The outer budget below always wins.
-    ai_timeout_seconds: float = Field(default=30.0, gt=0)
-    #: Whole-request ceiling, retries included (§30).
-    ai_request_budget_seconds: float = Field(default=35.0, gt=0)
-    #: Retries *after* the first attempt, so 2 means up to 3 calls (§29).
-    ai_max_retries: int = Field(default=2, ge=0, le=5)
+    # ── Structured output (§6.5) ─────────────────────────────────────────
+    #: "auto" picks native when the model profile claims JSON-schema output,
+    #: tool otherwise. "native" additionally *forces* the profile flag on:
+    #: OpenRouter's profile table knows only a dozen vendor prefixes, so an
+    #: unlisted model is reported unsupported even when the gateway forwards
+    #: response_format perfectly well.
+    ai_output_mode: Literal["auto", "native", "tool", "prompted"] = "auto"
+    #: True asks the provider to constrain decoding to the schema, which makes
+    #: syntactically invalid JSON impossible rather than merely unlikely.
+    ai_output_strict: bool | None = None
+    #: Retries *inside one conversation*, where the model is shown its own
+    #: parse error. Cheap: one short completion, not a fresh inference.
+    ai_output_retries: int = Field(default=1, ge=0, le=3)
+    #: On a runtime native-output rejection, demote to tool calling once and
+    #: remember it for the life of the process.
+    ai_output_mode_fallback: bool = True
+
+    # ── Reasoning (§30) ──────────────────────────────────────────────────
+    #: "default" sends nothing. "off" asks the provider to disable reasoning
+    #: tokens. Extraction against 30 characters of order text, with a schema
+    #: that fully determines the answer shape, gains nothing from reasoning
+    #: and pays for it in serial decode time.
+    ai_reasoning: Literal["default", "off", "minimal", "low", "medium", "high"] = "off"
+
+    # ── Timeouts (§30) ───────────────────────────────────────────────────
+    # Three numbers, because there are three distinct units of work. Collapsing
+    # them is what let AI_MAX_RETRIES=2 coexist with a 35s budget and 31s
+    # inferences: retries that could only ever be cancelled mid-flight.
+    #: One HTTP round-trip to the provider.
+    ai_timeout_seconds: float = Field(default=20.0, gt=0)
+    #: One `agent.run`, which may issue 1 + ai_output_retries HTTP calls.
+    #: This is what a single transport-retry attempt actually costs.
+    ai_attempt_seconds: float = Field(default=30.0, gt=0)
+    #: Whole-request ceiling, transport retries included.
+    ai_request_budget_seconds: float = Field(default=45.0, gt=0)
+    #: Transport-fault retries *after* the first attempt (§29).
+    ai_max_retries: int = Field(default=1, ge=0, le=5)
 
     max_description_chars: int = Field(default=4000, gt=0)
 
@@ -98,9 +132,14 @@ class Settings(BaseSettings):
                 "AI_API_KEY is required when AI_PROVIDER=openai-compatible. "
                 "Copy .env.example to .env and fill it in, or set AI_PROVIDER=fake."
             )
-        if self.ai_request_budget_seconds < self.ai_timeout_seconds:
+        if self.ai_attempt_seconds < self.ai_timeout_seconds:
             raise ValueError(
-                "AI_REQUEST_BUDGET_SECONDS must be >= AI_TIMEOUT_SECONDS, otherwise "
+                "AI_ATTEMPT_SECONDS must be >= AI_TIMEOUT_SECONDS: one attempt "
+                "contains at least one HTTP call."
+            )
+        if self.ai_request_budget_seconds < self.ai_attempt_seconds:
+            raise ValueError(
+                "AI_REQUEST_BUDGET_SECONDS must be >= AI_ATTEMPT_SECONDS, otherwise "
                 "the outer budget would cancel the very first attempt."
             )
         if self.firing_temp_min_c >= self.firing_temp_max_c:
@@ -110,6 +149,25 @@ class Settings(BaseSettings):
     @property
     def cors_origins(self) -> list[str]:
         return [o.strip() for o in self.cors_allow_origins.split(",") if o.strip()]
+
+    @property
+    def unreachable_retry_warning(self) -> str | None:
+        """Flag a retry budget that can never actually be spent.
+
+        Not an error -- a short budget is a legitimate SLA choice -- but a
+        silently unreachable retry is exactly the trap this service fell into:
+        AI_MAX_RETRIES=2 against a 35s budget and 31s inferences meant retries
+        1 and 2 could only ever be cancelled mid-flight, so the caller saw
+        AI_TIMEOUT and AI_INVALID_JSON interchangeably depending on the race.
+        """
+        needed = self.ai_attempt_seconds * (self.ai_max_retries + 1)
+        if self.ai_request_budget_seconds >= needed:
+            return None
+        return (
+            f"AI_REQUEST_BUDGET_SECONDS={self.ai_request_budget_seconds:g} cannot fit "
+            f"{self.ai_max_retries + 1} attempts of {self.ai_attempt_seconds:g}s "
+            f"({needed:g}s needed); later retries will be truncated mid-flight."
+        )
 
 
 @lru_cache

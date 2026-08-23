@@ -123,7 +123,18 @@ Everything is read from `.env` via `pydantic-settings`, validated at startup —
 
 ### Timeouts and retries
 
-`AI_TIMEOUT_SECONDS` (30) bounds one provider attempt; `AI_REQUEST_BUDGET_SECONDS` (35) bounds the whole request including retries. The budget is authoritative — each attempt gets `min(timeout, remaining budget)` so the two never fight over who cancels first. Only transient faults are retried (timeout, 429, 5xx, connection). A schema violation is not: retrying it spends credits to get the same wrong answer.
+Three numbers, because there are three units of work: `AI_TIMEOUT_SECONDS` (30) bounds one HTTP round-trip, `AI_ATTEMPT_SECONDS` (35) bounds one agent run — which may contain `1 + AI_OUTPUT_RETRIES` round-trips — and `AI_REQUEST_BUDGET_SECONDS` (45) bounds the whole request. Startup warns if the budget cannot fit the retries you asked for.
+
+Retries are split by *what failed*:
+
+| layer | handles | cost |
+|---|---|---|
+| `AI_OUTPUT_RETRIES` (pydantic-ai) | output that will not parse or validate — retried **in-conversation**, with the error shown to the model | one short completion |
+| `AI_MAX_RETRIES` (tenacity) | the call never completed: timeout, 429, 5xx, connection | a whole fresh inference |
+
+The rule: the transport layer may only retry faults carrying no information the model could act on. If the model spoke, tenacity is done. Getting this backwards is what turned one bad response into three 31-second inferences.
+
+`AI_REASONING` (`off` | `minimal` | `low` | `medium` | `high` | `default`) controls reasoning tokens — the largest latency term on a reasoning model, and worth nothing for extraction. `off` is demoted to `minimal` automatically on endpoints that reason unconditionally.
 
 ### Errors
 
@@ -159,7 +170,7 @@ Set `INTERNAL_API_KEY` and every `/v1` route requires a matching `X-Internal-API
 .\.venv\Scripts\python.exe -m mypy src
 ```
 
-93 tests, no network, no API key.
+131 tests, no network, no API key.
 
 ### The regression suite
 

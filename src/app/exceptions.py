@@ -81,8 +81,20 @@ class ProviderError(AIServiceError):
 
 
 class ProviderTimeout(ProviderError):
+    def __init__(self, message: str | None = None, *, retryable: bool = True) -> None:
+        super().__init__(ErrorCode.AI_TIMEOUT, message, retryable=retryable)
+
+
+class BudgetExhausted(ProviderTimeout):
+    """The whole-request budget ran out. Retrying cannot create time (§30).
+
+    Inheriting `retryable=True` meant tenacity slept its jittered backoff and
+    re-raised the same error twice more *after* the deadline had already
+    passed: pure added latency on a request that had already failed.
+    """
+
     def __init__(self, message: str | None = None) -> None:
-        super().__init__(ErrorCode.AI_TIMEOUT, message, retryable=True)
+        super().__init__(message, retryable=False)
 
 
 class ProviderUnavailable(ProviderError):
@@ -96,13 +108,24 @@ class ProviderRateLimited(ProviderError):
 
 
 class InvalidModelOutput(ProviderError):
-    """The model replied, but not with parseable JSON (§6.5)."""
+    """The model replied, but not with parseable JSON (§6.5).
+
+    Deliberately NOT retryable at the transport layer. By the time this is
+    raised, pydantic-ai has already fed the parse error back to the model
+    `AI_OUTPUT_RETRIES` times inside the same conversation -- the cheap retry
+    that actually carries new information. Re-running the whole inference from
+    a blank conversation gives the model *less* to work with than the attempt
+    that just failed, at roughly thirty times the cost.
+
+    Observed in production before this was fixed: three full 31-second
+    inferences producing byte-identical broken JSON.
+    """
 
     def __init__(self, message: str | None = None, *, raw: str | None = None) -> None:
         super().__init__(
             ErrorCode.AI_INVALID_JSON,
             message,
-            retryable=True,
+            retryable=False,
             details={"raw_response": raw[:1000]} if raw else None,
         )
 

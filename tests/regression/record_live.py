@@ -22,7 +22,7 @@ import sys
 from typing import Any
 
 from app.config import get_settings
-from app.features.order_extraction.prompt import ORDER_EXTRACTION_V1
+from app.features.order_extraction.prompt import ORDER_EXTRACTION_V2
 from app.features.order_extraction.schemas import LLMOrderExtraction
 from app.llm.client import PydanticAIProvider
 from tests.regression.runner import load_cases
@@ -38,7 +38,7 @@ async def record() -> dict[str, Any]:
         print(f"[{index:>2}] {case.id} ... ", end="", flush=True)
         try:
             result = await provider.structured_output(
-                instructions=ORDER_EXTRACTION_V1.instructions,
+                instructions=ORDER_EXTRACTION_V2.instructions,
                 user_input=case.description,
                 output_type=LLMOrderExtraction,
                 deadline_s=settings.ai_request_budget_seconds,
@@ -68,7 +68,7 @@ def main() -> int:
             {
                 "source": "live",
                 "model": get_settings().ai_model,
-                "prompt_version": ORDER_EXTRACTION_V1.name,
+                "prompt_version": ORDER_EXTRACTION_V2.name,
                 "note": "Captured from the real provider by record_live.py.",
                 "recordings": captured,
             },

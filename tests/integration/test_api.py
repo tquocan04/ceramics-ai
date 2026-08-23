@@ -48,7 +48,7 @@ def test_extract_returns_the_frontend_contract(client: TestClient) -> None:
     assert body["estimated"]["glaze_kg"] == 2.4
     assert body["estimated"]["firing_duration_hours"] == 10.5
     assert body["priority"] == "URGENT"
-    assert body["prompt_version"] == "order-extraction-v1"
+    assert body["prompt_version"] == "order-extraction-v2"
     assert body["schema_version"] == "1.0"
 
 
@@ -115,10 +115,7 @@ def test_missing_values_stay_null(client: TestClient) -> None:
             quantity=200,
             glaze_type="Men lam",
             decoration_pattern="Hoa sen",
-            evidence=[
-                {"field": "quantity", "text": "200"},
-                {"field": "glaze_type", "text": "men lam"},
-            ],
+            evidence={"quantity": "200", "glaze_type": "men lam"},
         )
     )
     response = client.post("/v1/orders/extract", json={"description": description})

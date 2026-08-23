@@ -36,7 +36,7 @@ from app.features.order_extraction.spans import find_span
 from app.features.order_extraction.validators import validate_extraction
 from app.llm.provider import LLMProvider
 from app.logging import get_logger, truncate
-from app.prompts.registry import ORDER_EXTRACTION_V1
+from app.prompts.registry import ORDER_EXTRACTION_V2
 
 log = get_logger(__name__)
 
@@ -45,7 +45,7 @@ class OrderExtractionService:
     def __init__(self, provider: LLMProvider, settings: Settings) -> None:
         self._provider = provider
         self._settings = settings
-        self._prompt = ORDER_EXTRACTION_V1
+        self._prompt = ORDER_EXTRACTION_V2
 
     async def extract(self, description: str, *, language: str = "vi") -> OrderAnalysisResponse:
         text = description.strip()
@@ -147,7 +147,6 @@ class OrderExtractionService:
         priority, reason, priority_warnings = derive_priority(
             quantity=extracted.quantity,
             deadline_days=extracted.deadline_days,
-            ai_priority=raw.ai_priority,
         )
         warnings.extend(priority_warnings)
 
@@ -161,8 +160,6 @@ class OrderExtractionService:
             priority_reason=reason,
             provenance=provenance,
             evidence=evidence,
-            ai_priority=raw.ai_priority,
-            ai_priority_reason=raw.ai_priority_reason,
             missing_fields=[
                 field for field in EXTRACTED_FIELDS if getattr(extracted, field) is None
             ],
@@ -171,11 +168,15 @@ class OrderExtractionService:
 
     @staticmethod
     def _collect_evidence(raw: LLMOrderExtraction) -> dict[str, str]:
-        """Keep only evidence naming a field we actually publish."""
+        """Keep only evidence naming a field we actually publish.
+
+        Text is kept unstripped while filtering on `.strip()`, exactly as
+        before, so `find_span` behaviour is unchanged.
+        """
         return {
-            item.field: item.text
-            for item in raw.evidence
-            if item.field in EXTRACTED_FIELDS and item.text.strip()
+            field: text
+            for field, text in raw.evidence.model_dump().items()
+            if field in EXTRACTED_FIELDS and isinstance(text, str) and text.strip()
         }
 
     @staticmethod

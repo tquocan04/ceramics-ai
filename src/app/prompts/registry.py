@@ -7,13 +7,13 @@ a given result.
 
 from __future__ import annotations
 
-from app.features.order_extraction.prompt import ORDER_EXTRACTION_V1
+from app.features.order_extraction.prompt import ORDER_EXTRACTION_V2
 from app.prompts.versions import PromptVersion
 
-__all__ = ["ORDER_EXTRACTION_V1", "PromptVersion", "all_prompts", "get_prompt"]
+__all__ = ["ORDER_EXTRACTION_V2", "PromptVersion", "all_prompts", "get_prompt"]
 
 _REGISTRY: dict[str, PromptVersion] = {
-    ORDER_EXTRACTION_V1.name: ORDER_EXTRACTION_V1,
+    ORDER_EXTRACTION_V2.name: ORDER_EXTRACTION_V2,
 }
 
 
